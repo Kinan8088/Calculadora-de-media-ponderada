@@ -17,10 +17,7 @@ Pequeña aplicación web que permite calcular la **media ponderada** a partir de
 1. Introduce un número en el campo correspondiente.
 2. Introduce su peso (por ejemplo, un porcentaje) en el segundo campo.
 3. Pulsa **"Agregar"** para añadirlo a la lista.
-4. Cuando tengas todos los datos, pulsa 
-
-**"Calcular media ponderada"**.
-
+4. Cuando tengas todos los datos, pulsa  **"Calcular media ponderada"**.
 5. El resultado aparecerá en pantalla.
 6. Puedes usar **"Resetear"** para borrar todos los valores y empezar de nuevo.
 
