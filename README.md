@@ -2,6 +2,8 @@
 
 Pequeña aplicación web que permite calcular la **media ponderada** a partir de una lista de números y sus respectivos pesos.
 
+https://kinan8088.github.io/Calculadora-de-media-ponderada/
+
 ## Características
 
 - Añadir números junto con su peso.
@@ -13,13 +15,13 @@ Pequeña aplicación web que permite calcular la **media ponderada** a partir de
 
 ## Cómo usar la calculadora
 
-
-1. Introduce un número en el campo correspondiente.
-2. Introduce su peso (por ejemplo, un porcentaje) en el segundo campo.
-3. Pulsa **"Agregar"** para añadirlo a la lista.
-4. Cuando tengas todos los datos, pulsa  **"Calcular media ponderada"**.
-5. El resultado aparecerá en pantalla.
-6. Puedes usar **"Resetear"** para borrar todos los valores y empezar de nuevo.
+1. Accede a la página web: https://kinan8088.github.io/Calculadora-de-media-ponderada/
+2. Introduce un número en el campo correspondiente.
+3. Introduce su peso (por ejemplo, un porcentaje) en el segundo campo.
+4. Pulsa **"Agregar"** para añadirlo a la lista.
+5. Cuando tengas todos los datos, pulsa  **"Calcular media ponderada"**.
+6. El resultado aparecerá en pantalla.
+7. Puedes usar **"Resetear"** para borrar todos los valores y empezar de nuevo.
 
 
 ## Mejoras futuras
