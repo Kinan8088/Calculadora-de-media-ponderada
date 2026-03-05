@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Media Ponderada</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="lang-selector">
+      <label for="lang">Idioma:</label>
+      <select id="lang">
+        <option value="es" selected>Español</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+
+    <h2 id="title">Calculadora de Media Ponderada</h2>
+
+    <div class="input-group">
+      <input type="number" id="numero" placeholder="Introduce un número" step="any" />
+      <input type="number" id="peso" placeholder="Introduce su peso (porcentaje)" step="any" />
+      <button onclick="agregarNumero()">Agregar</button>
+    </div>
+
+    <div id="error" class="error" role="alert"></div>
+
+    <div id="lista-container">
+      <p id="lista">Números: (ninguno)</p>
+    </div>
+
+    <p id="resultado"></p>
+
+    <div class="controls">
+      <button onclick="calcularMedia()">Calcular media ponderada</button>
+      <button onclick="resetear()">Resetear</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -26,8 +26,6 @@ https://kinan8088.github.io/Calculadora-de-media-ponderada/
 
 ## Mejoras futuras
 
-- Mejorar la manera de añadir números con ponderaciones.
-- Posibilidad de eliminar elementos individuales de la lista.
-- Versión responsive para diferentes dispositivos.
 - Añadir otros idiomas
-- Posiblemente mejorar la interfaz?
+- Añadir un botón para cambiar a modo oscuro y modo claro
+- ...
