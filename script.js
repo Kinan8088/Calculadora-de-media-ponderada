@@ -1,4 +1,4 @@
-// Texto de cada idioma
+// Textos para el cambio de idioma
 const texts = {
   es: {
     title: "Calculadora de Media Ponderada",
@@ -35,7 +35,6 @@ const texts = {
 let numeros = [];
 let pesos = [];
 let lang = "es";
-let ultimaMedia = null; // Guarda el último resultado numérico
 
 function t(key) {
   return texts[lang][key] || key;
@@ -74,17 +73,12 @@ function updateTexts() {
     }
   });
 
+  // Actualiza la lista o mensaje inicial si no hay datos
   if (numeros.length === 0) {
     const listaContainer = document.getElementById("lista-container");
     listaContainer.innerHTML = `<p id="lista">${t("noNumbers")}</p>`;
   } else {
     mostrarLista();
-  }
-
-  // Si hay una media calculada, reescribir con nuevo idioma
-  const resultadoEl = document.getElementById("resultado");
-  if (ultimaMedia !== null) {
-    resultadoEl.innerText = `${t("result")}: ${ultimaMedia.toFixed(2)}`;
   }
 }
 
@@ -120,7 +114,6 @@ function agregarNumero() {
   mostrarLista();
 }
 
-// Mostrar lista con botón de eliminar
 function mostrarLista() {
   const listaContainer = document.getElementById("lista-container");
 
@@ -148,16 +141,12 @@ function eliminarIndice(i) {
   pesos.splice(i, 1);
   mostrarLista();
   document.getElementById("resultado").innerText = "";
-  ultimaMedia = null; // Limpiar resultado al eliminar
 }
 
-// Calcular media ponderada
+// Calcular media ponderada (validando que sumen 100%)
 function calcularMedia() {
-  const resultadoEl = document.getElementById("resultado");
-
   if (numeros.length === 0) {
-    resultadoEl.innerText = t("errorNotEnough");
-    ultimaMedia = null;
+    document.getElementById("resultado").innerText = t("errorNotEnough");
     return;
   }
 
@@ -165,23 +154,20 @@ function calcularMedia() {
   const tolerance = 0.01;
 
   if (Math.abs(sumaPesos - 100) > tolerance) {
-    resultadoEl.innerText = t("errorWeights");
-    ultimaMedia = null;
+    document.getElementById("resultado").innerText = t("errorWeights");
     return;
   }
 
   const sumaPonderada = numeros.reduce((acc, n, i) => acc + n * pesos[i], 0);
   const media = sumaPonderada / sumaPesos;
 
-  ultimaMedia = media; // Guardar valor numérico
-  resultadoEl.innerText = `${t("result")}: ${media.toFixed(2)}`;
+  document.getElementById("resultado").innerText = `${t("result")}: ${media.toFixed(2)}`;
 }
 
 // Resetear todo
 function resetear() {
   numeros = [];
   pesos = [];
-  ultimaMedia = null; // Limpiar resultado guardado
   document.getElementById("resultado").innerText = "";
   document.getElementById("numero").value = "";
   document.getElementById("peso").value = "";
