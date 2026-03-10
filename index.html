@@ -16,25 +16,51 @@
       </select>
     </div>
 
-    <h2 id="title">Calculadora de Media Ponderada</h2>
+    <h2 id="title">Calculadora de Nota Media Ponderada</h2>
 
-    <div class="input-group">
-      <input type="number" id="numero" placeholder="Introduce un número" step="any" />
-      <input type="number" id="peso" placeholder="Introduce su peso (porcentaje)" step="any" />
-      <button onclick="agregarNumero()">Agregar</button>
-    </div>
-
+    <!-- Mensaje principal de errores -->
     <div id="error" class="error" role="alert"></div>
 
-    <div id="lista-container">
-      <p id="lista">Números: (ninguno)</p>
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th id="th-number">Número</th>
+          <th id="th-weight">Peso (%)</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr id="new-row">
+          <td>
+            <input type="number" id="new-number" placeholder="Número" step="any" />
+            <div id="error-number" class="field-error"></div>
+          </td>
+          <td>
+            <input type="number" id="new-weight" placeholder="Peso %" step="any" />
+            <div id="error-weight" class="field-error"></div>
+          </td>
+          <td>
+            <button id="add-button" onclick="agregarFila()">+</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Barra de progreso de pesos -->
+    <div class="progress-container">
+      <label id="label-total-weights">Total pesos: <span id="total-weight">0%</span></label>
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
     </div>
 
-    <p id="resultado"></p>
-
     <div class="controls">
-      <button onclick="calcularMedia()">Calcular media ponderada</button>
-      <button onclick="resetear()">Resetear</button>
+      <button id="btn-calc" onclick="calcularMedia()">Calcular media</button>
+      <button id="btn-reset" onclick="resetear()">Resetear</button>
+    </div>
+
+    <div class="results">
+      <p id="arithmetic-media"></p>
+      <p id="weighted-media"></p>
     </div>
   </div>
 

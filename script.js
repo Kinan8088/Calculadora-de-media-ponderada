@@ -1,181 +1,279 @@
 // Textos para el cambio de idioma
 const texts = {
   es: {
-    title: "Calculadora de Media Ponderada",
-    placeholderNumber: "Introduce un número",
-    placeholderWeight: "Introduce su peso (porcentaje)",
-    buttonAdd: "Agregar",
-    buttonCalc: "Calcular media ponderada",
+    title: "Calculadora de Nota Media Ponderada",
+    thNumber: "Número",
+    thWeight: "Peso (%)",
+    placeholderNumber: "Número",
+    placeholderWeight: "Peso %",
+    labelTotalWeights: "Total pesos:",
+    buttonCalc: "Calcular media",
     buttonReset: "Resetear",
-    noNumbers: "Números: (ninguno)",
-    result: "Media ponderada",
-    errorEmpty: "Introduce un número y un peso válidos.",
-    errorWeight: "El peso debe ser mayor que 0.",
-    errorWeights: "Los pesos deben sumar aproximadamente 100%.",
-    errorNotEnough: "No hay números suficientes para calcular.",
-    weightLabel: "peso:"
+    errorNumber: "Número no válido.",
+    errorWeight: "Peso debe ser mayor que 0.",
+    errorNone: "Ningún dato",
+    arithmeticMedia: "Media aritmética",
+    weightedMedia: "Media ponderada",
+    weightsNot100: (total) => `Pesos suman ${total.toFixed(1)}% (deben sumar 100%).`
   },
   en: {
-    title: "Weighted Average Calculator",
-    placeholderNumber: "Enter a number",
-    placeholderWeight: "Enter its weight (percentage)",
-    buttonAdd: "Add",
-    buttonCalc: "Calculate weighted average",
+    title: "Weighted Average Grade Calculator",
+    thNumber: "Number",
+    thWeight: "Weight (%)",
+    placeholderNumber: "Number",
+    placeholderWeight: "Weight %",
+    labelTotalWeights: "Total weights:",
+    buttonCalc: "Calculate average",
     buttonReset: "Reset",
-    noNumbers: "Numbers: (none)",
-    result: "Weighted average",
-    errorEmpty: "Please enter a valid number and weight.",
+    errorNumber: "Invalid number.",
     errorWeight: "Weight must be greater than 0.",
-    errorWeights: "Weights should sum to approximately 100%.",
-    errorNotEnough: "No numbers to calculate.",
-    weightLabel: "weight:"
+    errorNone: "No data",
+    arithmeticMedia: "Arithmetic mean",
+    weightedMedia: "Weighted mean",
+    weightsNot100: (total) => `Weights sum ${total.toFixed(1)}% (they must sum 100%).`
   }
 };
 
-let numeros = [];
-let pesos = [];
 let lang = "es";
 
-function t(key) {
-  return texts[lang][key] || key;
+function t(key, ...args) {
+  const value = texts[lang][key];
+  return typeof value === "function" ? value(...args) : value;
 }
 
-// Inicializar al cargar
-function init() {
+let datos = [];
+
+const tablaBody = document.getElementById("table-body");
+const totalWeightSpan = document.getElementById("total-weight");
+const progressFill = document.getElementById("progress-fill");
+const errorDiv = document.getElementById("error");
+const errorNumber = document.getElementById("error-number");
+const errorWeight = document.getElementById("error-weight");
+
+document.addEventListener("DOMContentLoaded", () => {
   const langSelect = document.getElementById("lang");
   langSelect.addEventListener("change", () => {
     lang = langSelect.value;
     updateTexts();
+    // Recalcular resultados para que cambie el texto de los labels
+    calcularMedia();
   });
-  updateTexts();
-}
 
-// Actualiza textos según idioma
+  updateTexts();
+  actualizarBarra();
+});
+
+// Actualiza todos los textos visibles según idioma
 function updateTexts() {
   document.title = t("title");
-  document.getElementById("title").innerText = t("title");
+  const titleEl = document.getElementById("title");
+  if (titleEl) titleEl.textContent = t("title");
 
-  const inputNumber = document.getElementById("numero");
-  const inputWeight = document.getElementById("peso");
-  const buttons = document.querySelectorAll("button");
+  document.getElementById("th-number").textContent = t("thNumber");
+  document.getElementById("th-weight").textContent = t("thWeight");
 
+  const inputNumber = document.getElementById("new-number");
+  const inputWeight = document.getElementById("new-weight");
   inputNumber.placeholder = t("placeholderNumber");
   inputWeight.placeholder = t("placeholderWeight");
 
-  buttons.forEach((btn) => {
-    const text = btn.textContent.trim();
-    if (["Agregar", "Add"].includes(text)) {
-      btn.textContent = t("buttonAdd");
-    } else if (["Calcular media ponderada", "Calculate weighted average"].includes(text)) {
-      btn.textContent = t("buttonCalc");
-    } else if (["Resetear", "Reset"].includes(text)) {
-      btn.textContent = t("buttonReset");
-    }
-  });
+  document.getElementById("label-total-weights").firstChild.textContent =
+    t("labelTotalWeights") + " ";
 
-  // Actualiza la lista o mensaje inicial si no hay datos
-  if (numeros.length === 0) {
-    const listaContainer = document.getElementById("lista-container");
-    listaContainer.innerHTML = `<p id="lista">${t("noNumbers")}</p>`;
-  } else {
-    mostrarLista();
+  document.getElementById("btn-calc").textContent = t("buttonCalc");
+  document.getElementById("btn-reset").textContent = t("buttonReset");
+
+  // Actualizar texto de errores de campo si están visibles
+  if (errorNumber.style.display === "block") {
+    errorNumber.textContent = t("errorNumber");
+  }
+  if (errorWeight.style.display === "block") {
+    errorWeight.textContent = t("errorWeight");
+  }
+
+  // Actualizar textos de resultados ya calculados (si existen)
+  const arith = document.getElementById("arithmetic-media");
+  const weighted = document.getElementById("weighted-media");
+  if (arith.textContent) {
+    // Recalcular para rehacer el texto con el idioma nuevo
+    arith.textContent = calcularMediaAritmetica();
+  }
+  if (weighted.textContent) {
+    weighted.textContent = calcularMediaPonderada();
   }
 }
 
-// Agregar número y peso
-function agregarNumero() {
-  const inputNumero = document.getElementById("numero");
-  const inputPeso = document.getElementById("peso");
-  const errorDiv = document.getElementById("error");
+function calcularTotalPesos() {
+  const total = datos.reduce((acc, row) => acc + row.peso, 0);
+  return total;
+}
 
-  const valor = parseFloat(inputNumero.value);
-  const peso = parseFloat(inputPeso.value);
+// Actualizar barra de progreso y su estado
+function actualizarBarra() {
+  const container = document.querySelector(".progress-container");
+  const total = calcularTotalPesos();
+  const percent = Math.min(100, total);
 
+  totalWeightSpan.textContent = `${total.toFixed(1)}%`;
+
+  if (total < 100) {
+    container.className = "progress-container warning";
+  } else if (total > 100) {
+    container.className = "progress-container danger";
+  } else {
+    container.className = "progress-container";
+  }
+
+  progressFill.style.width = `${percent}%`;
+}
+
+// Limpiar mensajes de error de los campos
+function limpiarErroresCampos() {
+  const inputs = document.querySelectorAll("#new-number, #new-weight");
+  inputs.forEach((input) => {
+    input.classList.remove("error");
+  });
+  errorNumber.style.display = "none";
+  errorWeight.style.display = "none";
+}
+
+// Validar y añadir fila
+function agregarFila() {
+  const inputNumber = document.getElementById("new-number");
+  const inputWeight = document.getElementById("new-weight");
+
+  const valor = parseFloat(inputNumber.value);
+  const peso = parseFloat(inputWeight.value);
+
+  limpiarErroresCampos();
   errorDiv.style.display = "none";
 
-  if (isNaN(valor) || isNaN(peso)) {
-    errorDiv.textContent = t("errorEmpty");
-    errorDiv.style.display = "block";
+  let hayError = false;
+
+  if (isNaN(valor)) {
+    inputNumber.classList.add("error");
+    errorNumber.style.display = "block";
+    errorNumber.textContent = t("errorNumber");
+    hayError = true;
+  }
+
+  if (isNaN(peso) || peso <= 0) {
+    inputWeight.classList.add("error");
+    errorWeight.style.display = "block";
+    errorWeight.textContent = t("errorWeight");
+    hayError = true;
+  }
+
+  if (hayError) {
     return;
   }
 
-  if (peso <= 0) {
-    errorDiv.textContent = t("errorWeight");
-    errorDiv.style.display = "block";
-    return;
+  // Añadir fila a la tabla y al array
+  const id = "row-" + Date.now();
+
+  datos.push({ id, numero: valor, peso });
+
+  const tr = document.createElement("tr");
+  tr.id = id;
+  tr.innerHTML = `
+    <td>
+      <input type="number" value="${valor}" step="any" onchange="actualizarNumero('${id}', this.value)" />
+    </td>
+    <td>
+      <input type="number" value="${peso}" step="any" onchange="actualizarPeso('${id}', this.value)" />
+    </td>
+    <td>
+      <button class="delete-btn" onclick="eliminarFila('${id}')">×</button>
+    </td>
+  `;
+
+  // Insertar antes de la fila “nueva”
+  const newRow = document.getElementById("new-row");
+  tablaBody.insertBefore(tr, newRow);
+
+  // Limpiar inputs
+  inputNumber.value = "";
+  inputWeight.value = "";
+
+  // Actualizar barra
+  actualizarBarra();
+}
+
+// Actualizar número en el array
+function actualizarNumero(id, valor) {
+  const row = datos.find((r) => r.id === id);
+  if (!row) return;
+
+  const n = parseFloat(valor);
+  if (isNaN(n)) return;
+
+  row.numero = n;
+  actualizarBarra();
+}
+
+// Actualizar peso en el array
+function actualizarPeso(id, valor) {
+  const row = datos.find((r) => r.id === id);
+  if (!row) return;
+
+  const p = parseFloat(valor);
+  if (isNaN(p) || p <= 0) return;
+
+  row.peso = p;
+  actualizarBarra();
+}
+
+// Eliminar fila completa
+function eliminarFila(id) {
+  datos = datos.filter((r) => r.id !== id);
+
+  const row = document.getElementById(id);
+  if (row) row.remove();
+
+  actualizarBarra();
+}
+
+function calcularMediaAritmetica() {
+  if (datos.length === 0) return t("errorNone");
+
+  const suma = datos.reduce((acc, row) => acc + row.numero, 0);
+  const media = suma / datos.length;
+  return `${t("arithmeticMedia")}: ${media.toFixed(2)}`;
+}
+
+function calcularMediaPonderada() {
+  if (datos.length === 0) return t("errorNone");
+
+  const totalPeso = datos.reduce((acc, row) => acc + row.peso, 0);
+  if (Math.abs(totalPeso - 100) > 0.01) {
+    return t("weightsNot100", totalPeso);
   }
 
-  numeros.push(valor);
-  pesos.push(peso);
-
-  inputNumero.value = "";
-  inputPeso.value = "";
-
-  mostrarLista();
+  const sumaPonderada = datos.reduce((acc, row) => acc + row.numero * row.peso, 0);
+  const media = sumaPonderada / totalPeso;
+  return `${t("weightedMedia")}: ${media.toFixed(2)}`;
 }
 
-function mostrarLista() {
-  const listaContainer = document.getElementById("lista-container");
-
-  if (numeros.length === 0) {
-    listaContainer.innerHTML = `<p id="lista">${t("noNumbers")}</p>`;
-    return;
-  }
-
-  let html = '<ul style="list-style: none; padding: 0;">';
-  numeros.forEach((n, i) => {
-    html += `
-      <li class="list-item">
-        ${n.toFixed(2)} (${t("weightLabel")} ${pesos[i]}%)
-        <button class="delete-btn" onclick="eliminarIndice(${i})">×</button>
-      </li>`;
-  });
-  html += "</ul>";
-
-  listaContainer.innerHTML = html;
-}
-
-// Eliminar un ítem por índice
-function eliminarIndice(i) {
-  numeros.splice(i, 1);
-  pesos.splice(i, 1);
-  mostrarLista();
-  document.getElementById("resultado").innerText = "";
-}
-
-// Calcular media ponderada (validando que sumen 100%)
 function calcularMedia() {
-  if (numeros.length === 0) {
-    document.getElementById("resultado").innerText = t("errorNotEnough");
-    return;
-  }
+  const arith = document.getElementById("arithmetic-media");
+  const weighted = document.getElementById("weighted-media");
 
-  const sumaPesos = pesos.reduce((acc, p) => acc + p, 0);
-  const tolerance = 0.01;
-
-  if (Math.abs(sumaPesos - 100) > tolerance) {
-    document.getElementById("resultado").innerText = t("errorWeights");
-    return;
-  }
-
-  const sumaPonderada = numeros.reduce((acc, n, i) => acc + n * pesos[i], 0);
-  const media = sumaPonderada / sumaPesos;
-
-  document.getElementById("resultado").innerText = `${t("result")}: ${media.toFixed(2)}`;
+  arith.textContent = calcularMediaAritmetica();
+  weighted.textContent = calcularMediaPonderada();
 }
 
 // Resetear todo
 function resetear() {
-  numeros = [];
-  pesos = [];
-  document.getElementById("resultado").innerText = "";
-  document.getElementById("numero").value = "";
-  document.getElementById("peso").value = "";
-  document.getElementById("error").style.display = "none";
+  datos = [];
 
-  const listaContainer = document.getElementById("lista-container");
-  listaContainer.innerHTML = `<p id="lista">${t("noNumbers")}</p>`;
+  const rows = tablaBody.querySelectorAll("tr:not(#new-row)");
+  rows.forEach((row) => row.remove());
+
+  document.getElementById("arithmetic-media").textContent = "";
+  document.getElementById("weighted-media").textContent = "";
+  document.getElementById("new-number").value = "";
+  document.getElementById("new-weight").value = "";
+  errorDiv.style.display = "none";
+
+  actualizarBarra();
 }
-
-// Iniciar al cargar
-window.onload = init;
